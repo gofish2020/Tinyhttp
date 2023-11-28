@@ -1,36 +1,32 @@
----
-typora-copy-images-to: ./img
----
-
 # TinyHttp【中文注解版】
 
-必须推荐的C语言初学者很好的入门项目，镜像Fork自[sourceForge](https://sourceforge.net/projects/tiny-httpd/)，代码细节请看源码注释
+必须推荐的C语言初学者很好的入门项目，镜像Fork自[sourceForge](https://sourceforge.net/projects/tiny-httpd/)。你可以学到网络编程的基本知识以及http如何进行响应和解析，为以后写自己的webserver打下基础。为了方便C语言初学者理解和学习，我对源代码`httpd.c`进行中文注解（未变动代码细节），对 `simpleclient.c`文件增加 `request_write`和`response_read`两个函数模拟`http get`请求。
+
+项目托管地址：https://github.com/gofish2020/Tinyhttp，欢迎Star和Fork
 
 ## 简介
 
 TinyHttp是原作者J. David Blackstone在1999年为了完成课堂作业写的一个最简webserver，实现了页面的浏览和CGI的功能。
 
-为了方便C语言初学者理解和学习，我对源代码`httpd.c`进行中文注解未变动代码细节，对 `simpleclient.c`文件增加 `request_write`和`response_read`两个函数模拟`http get`请求
-
 ## 环境配置
 
-**环境1**:安装C语言开发和调试环境(如已经安装了就不用了），参考链接 https://zhuanlan.zhihu.com/p/571934657?utm_id=0
+**【环境1】**:安装C语言开发和调试环境(如已经安装了就不用了），参考链接 https://zhuanlan.zhihu.com/p/571934657?utm_id=0
 
-**环境2**: 安装 perl (mac和Ubuntu默认已装)可以在终端输入`which perl`判断perl是否已经安装，如果提示类似 `usr/bin/perl`表示安装成功
+**【环境2】**: 安装 perl (mac和Ubuntu默认已装)可以在终端输入`which perl`判断perl是否已经安装，如果提示类似 `usr/bin/perl`表示安装成功
 
 ![](./img/image-20231128174241416.png)
 
-**环境3**: 安装 perl-cgi，命令行执行`perl -MCPAN -e shell`等待安装成功后，显示`cpan[1]>`后执行 `install CGI.pm`继续等待安装完成后，执行 `perl -MCGI -e 'print "CGI.pm version $CGI::VERSION\n";'`验证是否安装成功，出现 `CGI.pm version 4.48`信息，说明安装成功
+**【环境3】**: 安装 perl-cgi，命令行执行`perl -MCPAN -e shell`等待安装成功后，显示`cpan[1]>`后执行 `install CGI.pm`继续等待安装完成后，执行 `perl -MCGI -e 'print "CGI.pm version $CGI::VERSION\n";'`验证是否安装成功，出现 `CGI.pm version 4.48`信息，说明安装成功
 
 ![](./img/image-20231128174840816.png)
 
 ## 踩坑点
 
-**坑点1**
+**【坑点1】**
 
 打开 `check.cgi`和`color.cgi`文件，看下第一行的 `#!/usr/bin/perl -Tw`路径是否和上面自己的安装的perl路径一致;
 
-**坑点2**
+**【坑点2】**
 
 修改 `check.cgi`和`color.cgi`文件权限为可执行权限
 
@@ -41,9 +37,18 @@ chmod a+x color.cgi
 
 
 
+## 代码流程
+
+1. 先从`main`函数开始
+2. `startup` ：绑定ip和端口，开启监听
+3. 每个连接启动一个线程，在回调函数 `accept_request` 中进行http处理
+4. `get_line` 按照换行符，从连接中读取一行数据，然后请求行进行解析，判断本次请求的目标文件
+5. 如果是请求的目录，执行`serve_file`函数
+6. 如果是请求的cgi脚本，执行`execute_cgi` 函数
+
 ## 代码中关键函数的理解
 
-`get_line`函数：先理解**http数据包的格式**，代码中按照 `\r\n`为分隔符每次读取一行
+> `get_line`函数：先理解**http数据包的格式**，代码中按照 `\r\n`为分隔符每次读取一行
 
 ![](./img/image-20231128183320515.png)
 
@@ -55,7 +60,7 @@ chmod a+x color.cgi
 
 
 
-`execute_cgi`函数 中关于管道逻辑的图解
+> `execute_cgi`函数 中关于管道逻辑的图解
 
 ![](./img/image-20231128194955744.png)
 
