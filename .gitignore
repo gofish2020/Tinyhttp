@@ -1,0 +1,4 @@
+client
+httpd
+httpd.dSYM/*
+.vscode
